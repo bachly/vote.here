@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model Entry {
+  id           Int        @id @default(autoincrement())
+  username     String     @default("")
+  form1Answer  String     @default("")
+  form2Answer  String     @default("")
+  form3Answer  String     @default("")
+  form4Answer  String     @default("")
+  form5Answer  String     @default("")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt @default(now())
+}
+
+model Form {
+  id           Int        @id @default(autoincrement())
+  formId       String     @default("")
+  text         String     @default("")
+  choices      Json?      
+  status       String     @default("")
+  maxchoices   Int        @default(1)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt @default(now())
+}

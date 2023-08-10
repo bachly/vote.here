@@ -1,0 +1,34 @@
+@page {
+    size: A4 landscape;
+    margin: 0;
+    overflow: hidden;
+}
+
+@media screen {
+    #print-section {
+        display: none;
+    }
+
+    #screen-section {
+        display: block;
+    }
+}
+
+@media print {
+    #screen-section {
+        display: none;
+    }
+
+    #print-section {
+        display: block;
+    }
+
+    img {
+        page-break-before: avoid;
+        /* 'always,' 'avoid,' 'left,' 'inherit,' or 'right' */
+        page-break-after: avoid;
+        /* 'always,' 'avoid,' 'left,' 'inherit,' or 'right' */
+        page-break-inside: avoid;
+        /* or 'auto' */
+    }
+}

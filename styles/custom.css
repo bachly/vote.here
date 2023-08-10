@@ -1,0 +1,97 @@
+/*** Splide ***/
+.splide__pagination {
+    bottom: -2rem;
+}
+
+.splide__pagination__page {
+    margin: 4px;
+    background: theme("colors.neutral.700");
+}
+
+.splide__pagination__page.is-active {
+    background: theme("colors.black")
+}
+
+#thumbnailSlides .splide__slide {
+    border: 1px solid transparent;
+}
+
+#thumbnailSlides .splide__slide.is-visible.is-active {
+    border: 1px solid theme("colors.neutral.900");
+}
+
+.splide__arrow--prev {
+    left: 0.5em;
+    background: theme("colors.neutral.900");
+}
+
+.splide__arrow--prev svg {
+    fill: white;
+}
+
+.splide__arrow--next {
+    right: 0.5em;
+    background: theme("colors.neutral.900")
+}
+
+.splide__arrow--next svg {
+    fill: white;
+}
+
+/*** Spinner ***/
+.spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, .3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    -webkit-animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+/*** Swiper JS ***/
+.swiper {
+}
+.swiper-pagination-bullet {
+    width: 35px;
+    height: 5px;
+    border-radius: 0;
+}
+
+.swiper-pagination-bullet-active {
+    background-color: var(--color-secondary);
+}
+
+@media only screen and (max-width: 1280px) {
+    .swiper-slide {
+        opacity: 0.5
+    }
+    .swiper-slide-active {
+        opacity: 1
+    } 
+}
+
+/*** Toolbar fixed ***/
+
+.toolbar--fixed {
+    position: fixed;
+    top: 40px;
+    width: 100%;
+    animation: 500ms ease-in-out 0s normal none 1 running fadeInDown;
+    z-index: 10;
+    background: white;
+    @apply border-b border-slate-200 py-1 shadow-lg;
+}

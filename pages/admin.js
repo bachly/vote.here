@@ -100,6 +100,12 @@ export default function AdminPage() {
         }
     }
 
+    function resetEntries() {
+        axios.post('/api/reset-entries').then(({ data }) => {
+            console.log('[resetEntries] Success', data);
+        });
+    }
+
     return <div className="bg-neutral-200">
         <header className="py-2 bg-black text-white text-center text-2xl">Admin</header>
 
@@ -114,7 +120,7 @@ export default function AdminPage() {
                         {form.__loading && <>Loading...</>}
                         {!form.__loading && <>
                             <h2 className="text-3xl">
-                                Round {key} 
+                                Round {key}
                                 {form.status === 'active' && <span className="text-red-500 font-bold ml-2 text-base">LIVE!</span>}
                             </h2>
 
@@ -140,5 +146,9 @@ export default function AdminPage() {
                     </div>
                 })}
             </div>}
+
+        <div className="p-4">
+            <button className="text-red-500" onClick={resetEntries}>Reset entries</button>
+        </div>
     </div>
 }

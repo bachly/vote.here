@@ -50,11 +50,18 @@ export default function () {
     }
 
     return <div className="min-h-screen bg-black">
-        {activeForm && <>
+        {activeForm && parseInt(activeForm.formId) === 0 &&
+            <div className="min-h-screen min-w-screen flex items-center justify-center">
+                <div className="text-white text-2xl">
+                    {activeForm.text}
+                </div>
+            </div>}
+
+        {activeForm && parseInt(activeForm.formId) > 0 && <>
             <header className="py-7 px-4 bg-neutral-900 text-white text-center text-4xl">
                 <div className="flex items-center justify-between">
-                    <span>{activeForm.text}</span>
-                    <span className="text-neutral-400">Total responses: {totalResponses}</span>
+                    <div className="text-left">{activeForm.text}</div>
+                    <div className="text-right text-neutral-400">Total responses: {totalResponses}</div>
                 </div>
             </header>
 

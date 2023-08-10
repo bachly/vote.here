@@ -4,7 +4,7 @@ const handler = async (req, res) => {
     const username = req.query.username;
 
     try {
-        console.log('[/api/get-entries] Params (params):', { username });
+        // console.log('[/api/get-entries] Params (params):', { username });
         const result = await db.getEntry({ username });
         res.send({ ok: true, result });
     } catch (err) {

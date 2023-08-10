@@ -31,17 +31,19 @@ export default function () {
     }, [activeForm])
 
     function fetchEntries() {
-        if (activeForm && activeForm.formId > 0) {
+        if (activeForm) {
             axios.get(`/api/get-entries?formId=${activeForm.formId}`).then(({ data }) => {
                 const answers = data.result;
                 setAnswerCounter(answers);
 
                 // set total
                 let total = 0;
-                Object.keys(answers).map(answerValue => {
-                    const count = answers[answerValue];
-                    total = total + count;
-                })
+                if (answers) {
+                    Object.keys(answers).map(answerValue => {
+                        const count = answers[answerValue];
+                        total = total + count;
+                    })
+                }
                 setTotalReponses(total);
             })
         }

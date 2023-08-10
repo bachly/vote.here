@@ -134,7 +134,7 @@ export default function AdminPage() {
 
                             <div className="mt-4"></div>
                             <button onClick={handleSaveForm({ form, status: 'inactive' })} className="py-2 px-4 bg-neutral-200 hover:bg-neutral-300 rounded-lg">Save</button>
-                            <button onClick={updateStatus({ form, status: 'active' })} className="ml-2 py-2 px-4 bg-neutral-200 hover:bg-neutral-300 rounded-lg">Go LIVE!</button>
+                            <button onClick={updateStatus({ form, status: 'active' })} className="ml-2 py-2 px-4 bg-neutral-200 hover:bg-neutral-300 rounded-lg">To screen</button>
                         </>
                         }
                     </div>

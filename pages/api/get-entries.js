@@ -7,17 +7,19 @@ const handler = async (req, res) => {
         const result1 = await db.getEntries({ formId });
         const answerCounter = {};
 
-        result1.map(entry => {
-            const answerValues = entry[`form${formId}Answer`];
+        if (result1) {
+            result1.map(entry => {
+                const answerValues = entry[`form${formId}Answer`];
 
-            answerValues.map(answerValue => {
-                if (answerCounter[answerValue]) {
-                    answerCounter[answerValue] = answerCounter[answerValue] + 1;
-                } else {
-                    answerCounter[answerValue] = 1
-                }
+                answerValues.map(answerValue => {
+                    if (answerCounter[answerValue]) {
+                        answerCounter[answerValue] = answerCounter[answerValue] + 1;
+                    } else {
+                        answerCounter[answerValue] = 1
+                    }
+                })
             })
-        })
+        }
 
         res.send({ ok: true, result: answerCounter });
     } catch (err) {

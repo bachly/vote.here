@@ -52,9 +52,10 @@ export default function ({ data }) {
             axios.get(`/api/get-entry?username=${username}`).then(({ data }) => {
                 const answers = data.result[`form${activeForm.formId}Answer`];
                 console.log('set current answer', answers)
-                if (answers.length > 0) {
+                if (answers && answers.length > 0) {
                     answers.map(answer => {
                         setCurrentAnswers({
+                            ...currentAnswers,
                             [answer]: true
                         });
                     })
@@ -63,14 +64,29 @@ export default function ({ data }) {
         }
     }, [activeForm])
 
-    useEffect(() => {
+    function getActiveForm() {
         axios.get('/api/get-forms?status=active').then(({ data }) => {
             setActiveForm(data.result[0]);
         })
+    }
+
+    useEffect(() => {
+        getActiveForm();
     }, [])
 
+    useInterval(() => {
+        getActiveForm();
+    }, 2000)
+
     return <div className="min-h-screen bg-black">
-        {activeForm && <>
+        {activeForm && parseInt(activeForm.formId) === 0 &&
+            <div className="min-h-screen min-w-screen flex items-center justify-center">
+                <div className="text-white text-2xl">
+                    {activeForm.text}
+                </div>
+            </div>}
+
+        {activeForm && parseInt(activeForm.formId) > 0 && <>
             <header className="py-3 bg-neutral-900 text-white text-center text-2xl">
                 {activeForm.text}
             </header>

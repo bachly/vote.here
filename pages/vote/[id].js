@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import clsx from 'clsx';
 import { useInterval } from '../../lib/hooks';
+import _ from 'underscore';
 
 export default function ({ data }) {
     const { username } = data;
@@ -29,7 +30,9 @@ export default function ({ data }) {
 
             const answersArray = [];
             Object.keys(answers).map(key => {
-                answersArray.push(key);
+                if (key) {
+                    answersArray.push(key);
+                }
             })
 
             axios.post('/api/submit-vote', {
@@ -45,12 +48,20 @@ export default function ({ data }) {
     }
 
     useEffect(() => {
-        if (activeForm && !currentAnswers) {
+        if (activeForm) {
             axios.get(`/api/get-entry?username=${username}`).then(({ data }) => {
-                setCurrentAnswers(data.result[`form${activeForm.formId}Answer`]);
+                const answers = data.result[`form${activeForm.formId}Answer`];
+                console.log('set current answer', answers)
+                if (answers.length > 0) {
+                    answers.map(answer => {
+                        setCurrentAnswers({
+                            [answer]: true
+                        });
+                    })
+                }
             })
         }
-    }, [activeForm, currentAnswers])
+    }, [activeForm])
 
     useEffect(() => {
         axios.get('/api/get-forms?status=active').then(({ data }) => {
@@ -58,17 +69,13 @@ export default function ({ data }) {
         })
     }, [])
 
-    useEffect(() => {
-        console.log('currentAnswers', currentAnswers);
-    }, [currentAnswers])
-
     return <div className="min-h-screen bg-black">
         {activeForm && <>
             <header className="py-3 bg-neutral-900 text-white text-center text-2xl">
                 {activeForm.text}
             </header>
 
-            <div className="p-4">
+            <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-2">
                 {Object.keys(activeForm.choices).map(key => {
                     const choice = activeForm.choices[key];
                     if (choice) {

@@ -10,11 +10,16 @@ datasource db {
 model Entry {
   id           Int        @id @default(autoincrement())
   username     String     @default("")
-  form1Answer  String     @default("")
-  form2Answer  String     @default("")
-  form3Answer  String     @default("")
-  form4Answer  String     @default("")
-  form5Answer  String     @default("")
+  form1Answer  Json?      
+  form2Answer  Json?
+  form3Answer  Json?
+  form4Answer  Json?
+  form5Answer  Json?
+  form6Answer  Json?
+  form7Answer  Json?
+  form8Answer  Json?
+  form9Answer  Json?
+  form10Answer Json?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt @default(now())
 }

@@ -110,11 +110,11 @@ export default function AdminPage() {
                 {Object.keys(currentForms).map(key => {
                     const form = currentForms[key];
 
-                    return <div className={clsx("bg-white p-8 border-4 border-transparent rounded-2xl max-w-3xl", form.status === 'active' && 'border-red-500 bg-red-50')}>
+                    return <div className={clsx("bg-white p-8 border-4 rounded-2xl max-w-3xl", form.status === 'active' ? 'border-red-500 bg-red-50' : 'border-transparent bg-white')}>
                         {form.__loading && <>Loading...</>}
                         {!form.__loading && <>
                             <h2 className="text-3xl">
-                                {key} 
+                                Round {key} 
                                 {form.status === 'active' && <span className="text-red-500 font-bold ml-2 text-base">LIVE!</span>}
                             </h2>
 

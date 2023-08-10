@@ -19,7 +19,7 @@ export default function () {
         axios.get('/api/get-forms?status=active').then(({ data }) => {
             setActiveForm(data.result[0]);
         })
-    })
+    }, [])
 
     useInterval(() => {
         axios.get('/api/get-forms?status=active').then(({ data }) => {
@@ -27,9 +27,9 @@ export default function () {
         })
     }, 5000);
 
-    return <div className="">
+    return <div className="min-h-screen bg-black">
         {activeForm && <>
-            <header className="py-2 bg-neutral-900 text-white text-center text-2xl">
+            <header className="py-3 bg-neutral-900 text-white text-center text-2xl">
                 {activeForm.text}
             </header>
 
@@ -38,14 +38,11 @@ export default function () {
                     {Object.keys(activeForm.choices).map(key => {
                         const choice = activeForm.choices[key];
                         if (choice) {
-                            return <label key={key} className="mt-1 block w-full py-3 px-2 border border-neutral-500 rounded-lg">
-                                <input type="checkbox" value={choice} name={`radioForForm${activeForm.formId}`} />
+                            return <div key={key} className="mt-1 block w-full py-4 px-2 text-emerald-300 border-2 border-emerald-600 rounded-lg text-2xl text-center">
                                 <span className="ml-2">{choice}</span>
-                            </label>
+                            </div>
                         }
                     })}
-
-                    <button className="mt-4 py-3 px-4 text-center bg-blue-500 hover:bg-blue-600 text-white w-full rounded-lg">Submit</button>
                 </form>
             </div>
 

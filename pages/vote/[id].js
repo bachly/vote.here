@@ -1,49 +1,102 @@
-import WORDS from '../../lib/words.json';
 import useAxios from 'axios-hooks';
+import { useState } from 'react';
+import axios from 'axios';
+import { useEffect } from 'react';
+import clsx from 'clsx';
+import { useInterval } from '../../lib/hooks';
 
 export default function ({ data }) {
-    const id = data.id;
+    const { username } = data;
+    const [activeEntry, setActiveEntry] = useState();
+    const [activeForm, setActiveForm] = useState();
+    const [currentAnswers, setCurrentAnswers] = useState({});
 
-    const [{ data: activeForm, loading: isFetchingActiveForm, error: errorFetchingActiveForm }, refetch] = useAxios(
-        '/api/get-forms'
-    )
+    function handleSelectAnswer({ choice }) {
+        return event => {
+            event && event.preventDefault();
 
-    if (isFetchingActiveForm) return <>Loading...</>
-    if (errorFetchingActiveForm) return <>Error</>
+            let answers = Object.assign({}, currentAnswers);
 
-    function handleSubmitForm(formId) {
+            if (answers[choice]) {
+                delete answers[choice];
+            } else {
+                if (Object.keys(answers).length < activeForm.maxchoices) {
+                    answers[choice] = true;
+                }
+            }
 
+            setCurrentAnswers(answers);
+
+            const answersArray = [];
+            Object.keys(answers).map(key => {
+                answersArray.push(key);
+            })
+
+            axios.post('/api/submit-vote', {
+                username,
+                formId: activeForm.formId,
+                answer: answersArray
+            })
+        }
     }
 
-    return <div className="">
-        <header className="py-2 bg-blue-800 text-white text-center text-2xl">Voter ID: {id.toUpperCase()}</header>
+    function isDisabled({ choice }) {
+        return Object.keys(currentAnswers).length >= activeForm.maxchoices && !currentAnswers[choice]
+    }
 
-        <div className="p-4">
-            {activeForm &&
-                <form onSubmit={handleSubmitForm(1)}>
-                    {activeForm.result.answers.map(answer => {
-                        return <label className="mt-1 block w-full py-3 px-2 border border-neutral-500">
-                            <input type="checkbox" className="mr-2" name="answer" value={answer}></input>
-                            {answer}
-                        </label>
-                    })}
-                </form>}
-        </div>
+    useEffect(() => {
+        if (activeForm && !currentAnswers) {
+            axios.get(`/api/get-entry?username=${username}`).then(({ data }) => {
+                setCurrentAnswers(data.result[`form${activeForm.formId}Answer`]);
+            })
+        }
+    }, [activeForm, currentAnswers])
 
-        <footer className="fixed bottom-0 left-0 w-full">
-            <button className="block w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-center text-2xl">Submit</button>
-        </footer>
-    </div>
+    useEffect(() => {
+        axios.get('/api/get-forms?status=active').then(({ data }) => {
+            setActiveForm(data.result[0]);
+        })
+    }, [])
+
+    useEffect(() => {
+        console.log('currentAnswers', currentAnswers);
+    }, [currentAnswers])
+
+    return <div className="min-h-screen bg-black">
+        {activeForm && <>
+            <header className="py-3 bg-neutral-900 text-white text-center text-2xl">
+                {activeForm.text}
+            </header>
+
+            <div className="p-4">
+                {Object.keys(activeForm.choices).map(key => {
+                    const choice = activeForm.choices[key];
+                    if (choice) {
+                        return <button
+                            key={key}
+                            onClick={handleSelectAnswer({ choice })}
+                            disabled={isDisabled({ choice })}
+                            className={clsx(
+                                currentAnswers && currentAnswers[choice] ? "text-white bg-blue-600 border-transparent" : "text-blue-300 border-blue-600",
+                                "mt-1 block w-full py-4 px-3 border-2  text-blue-300 rounded-lg text-2xl disabled:opacity-30")}>
+                            <span className="ml-2" >{choice}</span>
+                        </button>
+                    }
+                })}
+            </div>
+
+        </>}
+    </div >
 }
 
 export async function getServerSideProps({ params }) {
-    const id = params.id;
+    const username = params.id;
 
-    if (id) {
+    if (username) {
         return {
             props: {
                 data: {
-                    id
+                    username
                 }
             }
         }

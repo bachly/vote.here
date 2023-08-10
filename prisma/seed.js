@@ -4,6 +4,27 @@ const WORDS = require('../lib/words.json');
 const _ = require('underscore');
 
 async function main() {
+    const form0 = await prisma.form.create({
+        data: {
+            formId: "0",
+            text: "Audience Survey",
+            choices: {
+                0: null,
+                1: null,
+                2: null,
+                3: null,
+                4: null,
+                5: null,
+                6: null,
+                7: null,
+                8: null,
+                9: null
+            },
+            maxchoices: 1,
+            status: 'active'
+        }
+    })
+
     const form1 = await prisma.form.create({
         data: {
             formId: "1",
@@ -113,7 +134,17 @@ async function main() {
     WORDS.map(async word => {
         const entry = await prisma.entry.create({
             data: {
-                username: word
+                username: word,
+                form1Answer: [],
+                form2Answer: [],
+                form3Answer: [],
+                form4Answer: [],
+                form5Answer: [],
+                form6Answer: [],
+                form7Answer: [],
+                form8Answer: [],
+                form9Answer: [],
+                form10Answer: [],
             }
         })
     })

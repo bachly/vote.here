@@ -5,7 +5,7 @@ export default function Users() {
         <div className="grid grid-cols-4">
             {WORDS.map(id => {
                 return <div className="p-6 text-center border border-black text-3xl">
-                    <span className="font-bold">lnkt.to/vote/{id}</span>
+                    <span className="font-bold">poll.here.li/me/{id}</span>
                 </div>
             })}
         </div>

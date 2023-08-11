@@ -131,22 +131,20 @@ async function main() {
     })
 
     // creating unique 1000+ users with 3-letter english words
-    WORDS.map(async word => {
-        const entry = await prisma.entry.create({
-            data: {
-                username: word,
-                form1Answer: [],
-                form2Answer: [],
-                form3Answer: [],
-                form4Answer: [],
-                form5Answer: [],
-                form6Answer: [],
-                form7Answer: [],
-                form8Answer: [],
-                form9Answer: [],
-                form10Answer: [],
-            }
-        })
+    const entries = await prisma.entry.createMany({
+        data: WORDS.map(async word => ({
+            username: word,
+            form1Answer: [],
+            form2Answer: [],
+            form3Answer: [],
+            form4Answer: [],
+            form5Answer: [],
+            form6Answer: [],
+            form7Answer: [],
+            form8Answer: [],
+            form9Answer: [],
+            form10Answer: [],
+        }))
     })
 }
 

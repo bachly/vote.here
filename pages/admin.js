@@ -137,11 +137,23 @@ export default function AdminPage() {
     return <div className="bg-neutral-200">
         <header className="py-2 bg-black text-white text-center text-2xl">
             <div className="flex items-center justify-between px-4">
-                <div className="w-32">
+                <div>
+                    Admin
                 </div>
-                Admin
-                <div className="w-32 text-lg">
-                    <button className="text-red-500" onClick={resetEntries}>Reset entries</button>
+                <div className="flex items-center">
+                    <div className="mr-6">
+                        <a href="/voting-slips" target="_blank" className="text-neutral-400 text-lg hover:underline hover:text-white">
+                            Voting slips with QR Code
+                        </a>
+                    </div>
+                    <div className="mr-6">
+                        <a href="/screen" target="_blank" className="text-neutral-400 text-lg hover:underline hover:text-white">
+                            Screen
+                        </a>
+                    </div>
+                    <div className="">
+                        <button className="bg-red-500 py-2 px-6 text-white hover:bg-red-600 text-base rounded-md" onClick={resetEntries}>Reset submissions</button>
+                    </div>
                 </div>
             </div>
         </header>

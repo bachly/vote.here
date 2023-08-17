@@ -8,7 +8,7 @@ const handler = async (req, res) => {
         console.log('[/api/reset-entries] Error (err):', err);
         res.status(400).json({ error: true, message: err.message });
         res.end();
-    } z
+    }gi
 }
 
 export default handler;

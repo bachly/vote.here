@@ -42,6 +42,32 @@ export default function AdminPage() {
         }
     }
 
+    function updateText({ form, key }) {
+        return (event) => {
+            event && event.preventDefault();
+            setCurrentForms({
+                ...currentForms,
+                [form.formId]: {
+                    ...currentForms[form.formId],
+                    text: event.target.value
+                }
+            })
+        }
+    }
+
+    function updateMaxChoices({ form, key }) {
+        return (event) => {
+            event && event.preventDefault();
+            setCurrentForms({
+                ...currentForms,
+                [form.formId]: {
+                    ...currentForms[form.formId],
+                    maxchoices: event.target.value
+                }
+            })
+        }
+    }
+
     function updateStatus({ form, status }) {
         return (event) => {
             event && event.preventDefault();
@@ -89,6 +115,7 @@ export default function AdminPage() {
 
             axios.post('/api/save-form', {
                 formId: form.formId,
+                text: currentForms[form.formId].text,
                 choices: currentForms[form.formId].choices,
                 maxchoices: currentForms[form.formId].maxchoices,
                 status: currentForms[form.formId].status,
@@ -107,7 +134,16 @@ export default function AdminPage() {
     }
 
     return <div className="bg-neutral-200">
-        <header className="py-2 bg-black text-white text-center text-2xl">Admin</header>
+        <header className="py-2 bg-black text-white text-center text-2xl">
+            <div className="flex items-center justify-between px-4">
+                <div className="w-32">
+                </div>
+                Admin
+                <div className="w-32 text-lg">
+                    <button className="text-red-500" onClick={resetEntries}>Reset entries</button>
+                </div>
+            </div>
+        </header>
 
         {isFetchingForms && <>Loading forms...</>}
         {errorFetchingForms && <>Error fetching forms...</>}
@@ -126,7 +162,9 @@ export default function AdminPage() {
 
                             <div className="mt-4"></div>
                             <h3>Text</h3>
-                            <input className="w-full border border-neutral-400 rounded-lg p-2" type="text" defaultValue={form.text} />
+                            <input
+                                onChange={updateText({ form, key })}
+                                className="w-full border border-neutral-400 rounded-lg p-2" type="text" defaultValue={form.text} />
 
                             <h3 className="mt-4">Choices</h3>
                             {Object.keys(form.choices).map((key) => {
@@ -138,6 +176,14 @@ export default function AdminPage() {
                                 </div>
                             })}
 
+                            <h3 className="mt-4">Maximum number of answers</h3>
+                            <select
+                                onChange={updateMaxChoices({ form, key })}
+                                className="w-full border border-neutral-400 rounded-lg p-2">
+                                <option value={1} selected={parseInt(form.maxchoices) === 1}>1</option>
+                                <option value={2} selected={parseInt(form.maxchoices) === 2}>2</option>
+                            </select>
+
                             <div className="mt-4"></div>
                             <button onClick={handleSaveForm({ form, status: 'inactive' })} className="py-2 px-4 bg-neutral-200 hover:bg-neutral-300 rounded-lg">Save</button>
                             <button onClick={updateStatus({ form, status: 'active' })} className="ml-2 py-2 px-4 bg-neutral-200 hover:bg-neutral-300 rounded-lg">To screen</button>
@@ -146,9 +192,5 @@ export default function AdminPage() {
                     </div>
                 })}
             </div>}
-
-        <div className="p-4">
-            <button className="text-red-500" onClick={resetEntries}>Reset entries</button>
-        </div>
     </div>
 }

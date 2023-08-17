@@ -52,20 +52,20 @@ export default function () {
     return <div className="min-h-screen bg-black">
         {activeForm && parseInt(activeForm.formId) === 0 &&
             <div className="min-h-screen min-w-screen flex items-center justify-center">
-                <div className="text-white text-2xl">
+                <div className="text-white text-5xl">
                     {activeForm.text}
                 </div>
             </div>}
 
         {activeForm && parseInt(activeForm.formId) > 0 && <>
-            <header className="py-7 px-4 bg-neutral-900 text-white text-center text-4xl">
+            <header className="py-7 px-4 bg-neutral-900 text-white text-center text-5xl">
                 <div className="flex items-center justify-between">
                     <div className="text-left">{activeForm.text}</div>
                     <div className="text-right text-neutral-400">Total responses: {totalResponses}</div>
                 </div>
             </header>
 
-            <div className="p-4 grid grid-cols-2 gap-2">
+            <div className="p-4 grid grid-cols-1 gap-2">
                 {Object.keys(activeForm.choices).map(key => {
                     const choice = activeForm.choices[key];
                     if (choice) {
@@ -73,7 +73,7 @@ export default function () {
                             <div className="flex items-center justify-center">
                                 <span className="">{choice}</span>
                                 {answerCounter && answerCounter[choice] &&
-                                    <div className="ml-2 text-white rounded-full w-8 h-8 bg-emerald-800 text-lg flex items-center justify-center">{answerCounter[choice]}</div>}
+                                    <div className="ml-2 text-white rounded-full w-8 h-8 bg-emerald-800 text-3xl flex items-center justify-center">{answerCounter[choice]}</div>}
                             </div>
                         </div>
                     }

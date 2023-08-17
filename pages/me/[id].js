@@ -8,7 +8,6 @@ import _ from 'underscore';
 
 export default function ({ data }) {
     const { username } = data;
-    const [activeEntry, setActiveEntry] = useState();
     const [activeForm, setActiveForm] = useState();
     const [currentAnswers, setCurrentAnswers] = useState({});
 
@@ -59,6 +58,8 @@ export default function ({ data }) {
                             [answer]: true
                         });
                     })
+                } else {
+                    setCurrentAnswers({})
                 }
             })
         }
@@ -91,7 +92,7 @@ export default function ({ data }) {
                 {activeForm.text}
             </header>
 
-            <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-2">
+            <div className="p-4 grid grid-cols-1 lg:grid-cols-1 gap-2">
                 {Object.keys(activeForm.choices).map(key => {
                     const choice = activeForm.choices[key];
                     if (choice) {

@@ -10,6 +10,7 @@ datasource db {
 model Entry {
   id           Int        @id @default(autoincrement())
   username     String     @default("")
+  form0Answer  Json?
   form1Answer  Json?      
   form2Answer  Json?
   form3Answer  Json?

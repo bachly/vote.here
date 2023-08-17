@@ -54,19 +54,19 @@ export default function ({ data }) {
 
     useEffect(() => {
         if (activeForm) {
+            const answersToUpdate = {};
+
             axios.get(`/api/get-entry?username=${username}`).then(({ data }) => {
                 const answers = data.result[`form${activeForm.formId}Answer`];
-                console.log('set current answer', answers)
+                console.log('retrieved answers:', answers);
                 if (answers && answers.length > 0) {
                     answers.map(answer => {
-                        setCurrentAnswers({
-                            ...currentAnswers,
-                            [answer]: true
-                        });
+                       answersToUpdate[answer] = true;
                     })
-                } else {
-                    setCurrentAnswers({})
                 }
+
+                console.log('answers to update:', answersToUpdate);
+                setCurrentAnswers(answersToUpdate);
             })
         }
     }, [activeForm])

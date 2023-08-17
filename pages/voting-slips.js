@@ -10,7 +10,7 @@ export default function Users() {
                 return <div key={id} className="pl-3 pt-6 pb-6 text-left border border-black">
                     <div className="flex items-center">
                         <Image
-                            text={`http://vote.here.li.me/${id}`}
+                            text={`http://vote.here.li/me/${id}`}
                             options={{
                                 type: 'image/jpeg',
                                 quality: 0.3,

@@ -130,6 +130,7 @@ export default function AdminPage() {
     function resetEntries() {
         axios.post('/api/reset-entries').then(({ data }) => {
             console.log('[resetEntries] Success', data);
+            alert('Successfully reset all submissions');
         });
     }
 

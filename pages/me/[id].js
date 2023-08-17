@@ -5,9 +5,15 @@ import { useEffect } from 'react';
 import clsx from 'clsx';
 import { useInterval } from '../../lib/hooks';
 import _ from 'underscore';
+import WORDS from '../../lib/words.json';
 
 export default function ({ data }) {
     const { username } = data;
+
+    if (WORDS.indexOf(username) < 0) {
+        return <div className="bg-black text-white text-3xl h-screen w-screen flex items-center justify-center">Invalid link</div>
+    }
+
     const [activeForm, setActiveForm] = useState();
     const [currentAnswers, setCurrentAnswers] = useState({});
 

@@ -68,13 +68,21 @@ export default function () {
             <div className="p-4 grid grid-cols-1 gap-2">
                 {Object.keys(activeForm.choices).map(key => {
                     const choice = activeForm.choices[key];
+                    const percentage = answerCounter && answerCounter[choice] && `${(answerCounter[choice] / totalResponses * 100).toFixed(1)}%` || 0;
+                    const counter = answerCounter && answerCounter[choice];
                     if (choice) {
-                        return <div key={key} className="mt-1 block w-full py-4 px-2 text-emerald-300 border-2 border-emerald-600 rounded-lg text-3xl text-center">
-                            <div className="flex items-center justify-center">
+                        return <div key={key} className="relative mt-1 block w-full py-4 px-2 text-emerald-300 border-2 border-emerald-600 rounded-lg text-3xl text-center">
+                            <div className="relative z-10 flex items-center justify-center">
                                 <span className="">{choice}</span>
-                                {answerCounter && answerCounter[choice] &&
-                                    <div className="ml-2 text-white rounded-full w-8 h-8 bg-emerald-800 text-3xl flex items-center justify-center">{answerCounter[choice]}</div>}
+                                {counter &&
+                                    <div className="absolute top-0 right-2 z-10 ml-2 text-white text-3xl flex items-center justify-center">
+                                        {counter} responses • {percentage}
+                                    </div>}
                             </div>
+                            {counter &&
+                                <div className="absolute top-0 left-0 h-full bg-emerald-800 z-0"
+                                    style={{ width: percentage }}>
+                                </div>}
                         </div>
                     }
                 })}

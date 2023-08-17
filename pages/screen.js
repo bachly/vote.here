@@ -26,7 +26,6 @@ export default function () {
     }, 2000);
 
     useEffect(() => {
-        setAnswerCounter(null);
         fetchEntries();
     }, [activeForm])
 

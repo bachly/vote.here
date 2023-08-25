@@ -22,6 +22,8 @@ export default function AdminPage() {
                 };
             })
 
+            console.log('currentForms:', formDict);
+
             setCurrentForms(formDict);
         }
     }, [forms])
@@ -68,6 +70,23 @@ export default function AdminPage() {
         }
     }
 
+    function updateFrozen({ form, key }) {
+        return (event) => {
+            event && event.preventDefault();
+
+            console.log('updateFrozen:', event.target.value);
+
+            setCurrentForms({
+                ...currentForms,
+                [form.formId]: {
+                    ...currentForms[form.formId],
+                    frozen: event.target.value
+                }
+            })
+        }
+    }
+
+
     function updateStatus({ form, status }) {
         return (event) => {
             event && event.preventDefault();
@@ -88,12 +107,17 @@ export default function AdminPage() {
                 }
             })
 
-            axios.post('/api/save-form', {
+            const dataToPost = {
                 formId: form.formId,
                 choices: currentForms[form.formId].choices,
                 maxchoices: currentForms[form.formId].maxchoices,
-                status,
-            }).then(() => {
+                frozen: currentForms[form.formId].frozen,
+                status
+            }
+
+            console.log('updateStatus (dataToPost):', dataToPost);
+
+            axios.post('/api/save-form', dataToPost).then(() => {
                 setTimeout(() => {
                     refetchForms();
                 }, 500)
@@ -113,13 +137,18 @@ export default function AdminPage() {
                 }
             })
 
-            axios.post('/api/save-form', {
+            const dataToPost = {
                 formId: form.formId,
                 text: currentForms[form.formId].text,
                 choices: currentForms[form.formId].choices,
                 maxchoices: currentForms[form.formId].maxchoices,
+                frozen: currentForms[form.formId].frozen,
                 status: currentForms[form.formId].status,
-            }).then(() => {
+            }
+
+            console.log('handlSaveForm (dataToPost):', dataToPost);
+
+            axios.post('/api/save-form', dataToPost).then(() => {
                 setTimeout(() => {
                     refetchForms();
                 }, 500)
@@ -165,7 +194,7 @@ export default function AdminPage() {
                 {Object.keys(currentForms).map(key => {
                     const form = currentForms[key];
 
-                    return <div className={clsx("bg-white p-8 border-4 rounded-2xl max-w-3xl", form.status === 'active' ? 'border-red-500 bg-red-50' : 'border-transparent bg-white')}>
+                    return <div key={key} className={clsx("bg-white p-8 border-4 rounded-2xl max-w-3xl", form.status === 'active' ? 'border-red-500 bg-red-50' : 'border-transparent bg-white')}>
                         {form.__loading && <>Loading...</>}
                         {!form.__loading && <>
                             <h2 className="text-3xl">
@@ -181,7 +210,7 @@ export default function AdminPage() {
 
                             <h3 className="mt-4">Choices</h3>
                             {Object.keys(form.choices).map((key) => {
-                                return <div className="mt-1">
+                                return <div key={key} className="mt-1">
                                     <input
                                         onChange={updateChoice({ form, key })}
                                         className="w-full border border-neutral-400 rounded-lg p-2"
@@ -191,10 +220,20 @@ export default function AdminPage() {
 
                             <h3 className="mt-4">Maximum number of answers</h3>
                             <select
+                                defaultValue={parseInt(form.maxchoices)}
                                 onChange={updateMaxChoices({ form, key })}
                                 className="w-full border border-neutral-400 rounded-lg p-2">
-                                <option value={1} selected={parseInt(form.maxchoices) === 1}>1</option>
-                                <option value={2} selected={parseInt(form.maxchoices) === 2}>2</option>
+                                <option value={1}>1</option>
+                                <option value={2}>2</option>
+                            </select>
+
+                            <h3 className="mt-4">Voting On/Off</h3>
+                            <select
+                                defaultValue={form.frozen}
+                                onChange={updateFrozen({ form, key })}
+                                className="w-full border border-neutral-400 rounded-lg p-2">
+                                <option value={true}>Voting OFF</option>
+                                <option value={false}>Voting ON</option>
                             </select>
 
                             <div className="mt-4"></div>

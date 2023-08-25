@@ -32,6 +32,7 @@ model Form {
   choices      Json?      
   status       String     @default("")
   maxchoices   Int        @default(1)
+  frozen       Boolean    @default(false)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt @default(now())
 }

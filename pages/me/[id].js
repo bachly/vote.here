@@ -49,7 +49,7 @@ export default function ({ data }) {
     }
 
     function isDisabled({ choice }) {
-        return Object.keys(currentAnswers).length >= activeForm.maxchoices && !currentAnswers[choice]
+        return activeForm.frozen || (Object.keys(currentAnswers).length >= activeForm.maxchoices && !currentAnswers[choice])
     }
 
     useEffect(() => {
@@ -73,6 +73,7 @@ export default function ({ data }) {
 
     function getActiveForm() {
         axios.get('/api/get-forms?status=active').then(({ data }) => {
+            console.log('getActiveForm:', data.result[0])
             setActiveForm(data.result[0]);
         })
     }

@@ -44,6 +44,15 @@ export default function ({ data }) {
                 username,
                 formId: activeForm.formId,
                 answer: answersArray
+            }).then(response => {
+                if (response && response.data && !response.data.ok) {
+                    let text = response.data.message;
+                    if (confirm(text) == true) {
+                        location.reload();
+                    } else {
+                        location.reload();
+                    }
+                }
             })
         }
     }
@@ -61,7 +70,7 @@ export default function ({ data }) {
                 console.log('retrieved answers:', answers);
                 if (answers && answers.length > 0) {
                     answers.map(answer => {
-                       answersToUpdate[answer] = true;
+                        answersToUpdate[answer] = true;
                     })
                 }
 
@@ -82,9 +91,10 @@ export default function ({ data }) {
         getActiveForm();
     }, [])
 
-    useInterval(() => {
-        getActiveForm();
-    }, 2000)
+    // Disable to avoid too many requests hitting the server
+    // useInterval(() => {
+    //     getActiveForm();
+    // }, 10000)
 
     return <div className="min-h-screen bg-black">
         {activeForm && parseInt(activeForm.formId) === 0 &&

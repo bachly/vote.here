@@ -23,7 +23,7 @@ export default function () {
 
     useInterval(() => {
         getActiveForm();
-    }, 2000);
+    }, 4000);
 
     useEffect(() => {
         fetchEntries();

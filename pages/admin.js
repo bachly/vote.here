@@ -6,7 +6,6 @@ import _ from 'underscore';
 
 export default function Admin() {
 
-    const { user } = useUserContext();
     const [polls, setPolls] = useState();
     const [pollForms, setPollForms] = useState({});
     const [updatedForm, setUpdatedForm] = useState({});
@@ -14,21 +13,19 @@ export default function Admin() {
     useEffect(async () => {
         let newPollForms = {};
 
-        if (user) {
-            const pollsByUser = await getPollsByUser({ email: user.email })
-            console.log('pollsByUser', pollsByUser);
-            setPolls(pollsByUser);
-            pollsByUser.forEach(poll => {
-                newPollForms = {
-                    ...newPollForms,
-                    [poll.id]: {
-                        ...poll
-                    }
+        const pollsByUser = await getPollsByUser({ email: "admin" })
+        console.log('pollsByUser', pollsByUser);
+        setPolls(pollsByUser);
+        pollsByUser.forEach(poll => {
+            newPollForms = {
+                ...newPollForms,
+                [poll.id]: {
+                    ...poll
                 }
-            })
-            setPollForms(newPollForms);
-        }
-    }, [user])
+            }
+        })
+        setPollForms(newPollForms);
+    }, [])
 
     useEffect(() => {
         console.log('pollForms', pollForms)

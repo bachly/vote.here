@@ -28,11 +28,19 @@ export default function ({ currentPollId }) {
 
     useEffect(async () => {
         const pollData = await getPoll({ pollId: currentPollId });
+        
+        // clear empty answers
+        pollData.answers = _.compact(pollData.answers);
+        
         setPoll(pollData);
     }, []);
 
     useInterval(async () => {
         const pollData = await getPoll({ pollId: currentPollId });
+        
+          // clear empty answers
+          pollData.answers = _.compact(pollData.answers);
+
         setPoll(pollData);
     }, INTERVAL_REFRESHING_OVERHEAD);
 

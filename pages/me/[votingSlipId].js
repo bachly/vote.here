@@ -1,9 +1,20 @@
 import { getOverhead, getPoll, setVoterAnswers } from "../../lib/firebaseMethods";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
+import _ from "underscore";
 
-export default function ({ voterId, poll, currentPollId }) {
+export default function ({ voterId, voterAnswers, poll, currentPollId }) {
     const [currentAnswers, setCurrentAnswers] = useState({});
+
+    console.log('poll', poll)
+
+    useEffect(() => {
+        const preAnswers = {}
+        voterAnswers.map(voterAnswer => {
+            preAnswers[voterAnswer] = true;
+        })
+        setCurrentAnswers(preAnswers);
+    }, [])
 
     function handleSelectAnswer({ answer }) {
         return event => {
@@ -44,9 +55,13 @@ export default function ({ voterId, poll, currentPollId }) {
             </header>
 
             <div className="p-4 grid grid-cols-1 lg:grid-cols-1 gap-2">
-                {poll.answers.map((answer) => {
+                {poll.answers.map((answer, index) => {
+                    if (!answer) {
+                        return <></>;
+                    }
+
                     return <button
-                        key={answer}
+                        key={`${answer}_${index}`}
                         onClick={handleSelectAnswer({ answer })}
                         disabled={isDisabled({ answer })}
                         className={clsx(
@@ -72,9 +87,20 @@ export async function getServerSideProps(context) {
         poll = await getPoll({ pollId: currentPollId })
     }
 
+    // clear empty elements
+    poll.answers = _.compact(poll.answers);
+
+    const voterAnswers = [];
+    Object.entries(poll.voterAnswers).map(([answer, voters]) => {
+        if (_.contains(Object.keys(voters), voterId)) {
+            voterAnswers.push(answer);
+        }
+    })
+
     return {
         props: {
             voterId,
+            voterAnswers,
             poll,
             currentPollId
         }

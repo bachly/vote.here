@@ -23,7 +23,7 @@ export default function Login() {
         }
     }, [user, loading, error])
 
-    const authConfig = uiConfig(firebase);
+    const authConfig = uiConfig();
 
     return (
         <>

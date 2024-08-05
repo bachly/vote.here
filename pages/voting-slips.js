@@ -1,4 +1,4 @@
-import WORDS from '../lib/words.json';
+import WORDS from '../../lib/words.json';
 import { useQRCode } from 'next-qrcode';
 
 export default function Users() {
@@ -25,7 +25,7 @@ export default function Users() {
                             }}
                         />
                         <div className="ml-2">
-                            <div className="font-bold text-2xl tracking-tight">Voting Slip</div>
+                            <div className="font-bold text-2xl tracking-tight">1 voting slip per phone</div>
                             <a href={`/me/${id}`} className="font-bold text-base underline">vote.here.li/me/{id}</a>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-import { getOverhead, getPoll, setPollAnswers } from "../../lib/firebaseMethods";
+import { getOverhead, getPoll, setVoterAnswers } from "../../lib/firebaseMethods";
 import React, { useState } from "react";
 import clsx from "clsx";
 
@@ -21,7 +21,7 @@ export default function ({ voterId, poll, currentPollId }) {
             }
 
             setCurrentAnswers(answers);
-            setPollAnswers({ pollId: currentPollId, voterId, voterAnswers: answers });
+            setVoterAnswers({ pollId: currentPollId, voterId, voterAnswers: answers });
         }
     }
 
@@ -31,20 +31,20 @@ export default function ({ voterId, poll, currentPollId }) {
     }
 
     return <div className="min-h-screen bg-black flex flex-col">
-        {poll && Object.entries(poll.answers).length === 0 &&
+        {poll && poll.answers && poll.answers.length === 0 &&
             <div className="min-h-screen min-w-screen flex items-center justify-center">
                 <div className="text-white text-2xl">
                     {poll.question}
                 </div>
             </div>}
 
-        {poll && Object.entries(poll.answers).length > 0 && <div className="flex-1">
+        {poll && poll.answers && poll.answers.length > 0 && <div className="flex-1">
             <header className="py-3 bg-neutral-900 text-white text-center text-2xl">
                 {poll.question}
             </header>
 
             <div className="p-4 grid grid-cols-1 lg:grid-cols-1 gap-2">
-                {Object.entries(poll.answers).map(([answer]) => {
+                {poll.answers.map((answer) => {
                     return <button
                         key={answer}
                         onClick={handleSelectAnswer({ answer })}
@@ -62,25 +62,18 @@ export default function ({ voterId, poll, currentPollId }) {
 }
 
 export async function getServerSideProps(context) {
-    const votingSlipId = context.params.votingSlipId;
-    const votingSlipIdParts = votingSlipId.split('_');
-    const eventId = votingSlipIdParts[0];
-    const voterId = votingSlipIdParts[1];
-
+    const voterId = context.params.votingSlipId;
     let currentPollId = null, poll = null;
 
-    if (eventId) {
-        const overheadResult = await getOverhead({ eventId });
-        currentPollId = overheadResult.currentPollId;
+    const overheadResult = await getOverhead({ eventId: "1" });
+    currentPollId = overheadResult.currentPollId;
 
-        if (currentPollId) {
-            poll = await getPoll({ pollId: currentPollId })
-        }
+    if (currentPollId) {
+        poll = await getPoll({ pollId: currentPollId })
     }
 
     return {
         props: {
-            eventId,
             voterId,
             poll,
             currentPollId

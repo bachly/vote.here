@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useInterval } from "../../lib/hooks";
-import { getOverhead, getPoll } from "../../lib/firebaseMethods";
+import { useInterval } from "../lib/hooks";
+import { getOverhead, getPoll } from "../lib/firebaseMethods";
 import _ from "underscore";
 
 const INTERVAL_REFRESHING_OVERHEAD = 3000;
@@ -15,8 +15,8 @@ export default function ({ currentPollId }) {
             const votedAnswers = {};
             let total = 0;
 
-            _.sortBy(Object.keys(poll.answers)).map(answer => {
-                const totalVotes = Object.keys(poll.voterAnswers[answer] || {}).length;
+            _.sortBy(poll.answers).map(answer => {
+                const totalVotes = Object.keys((poll.voterAnswers && poll.voterAnswers[answer]) || {}).length;
                 total += totalVotes;
                 votedAnswers[answer] = totalVotes;
             })
@@ -37,14 +37,14 @@ export default function ({ currentPollId }) {
     }, INTERVAL_REFRESHING_OVERHEAD);
 
     return <div className="min-h-screen bg-black">
-        {poll && Object.entries(poll.answers).length === 0 &&
+        {poll && poll.answers && poll.answers.length === 0 &&
             <div className="min-h-screen min-w-screen flex items-center justify-center">
                 <div className="text-white text-5xl">
                     {poll.question}
                 </div>
             </div>}
 
-        {poll && Object.entries(poll.answers).length > 0 && <>
+        {poll && poll.answers && poll.answers.length > 0 && <>
             <header className="py-7 px-4 bg-neutral-900 text-white text-center text-5xl">
                 <div className="flex items-center justify-between">
                     <div className="text-left">{poll.question}</div>
@@ -53,7 +53,7 @@ export default function ({ currentPollId }) {
             </header>
 
             <div className="p-4 grid grid-cols-1 gap-2">
-                {_.sortBy(Object.keys(poll.answers)).map((answer) => {
+                {_.sortBy(poll.answers).map((answer) => {
                     const counter = votedAnswers && votedAnswers[answer];
                     const percentage = votedAnswers && votedAnswers[answer] && `${(votedAnswers[answer] / totalResponses * 100).toFixed(1)}%` || 0;
 
@@ -78,8 +78,8 @@ export default function ({ currentPollId }) {
 
 
 export async function getServerSideProps(context) {
-    const eventId = context.params.eventId;
     let currentPollId;
+    let eventId = 1;
 
     if (eventId) {
         const overheadData = await getOverhead({ eventId });

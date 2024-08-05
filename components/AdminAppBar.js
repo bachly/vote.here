@@ -1,11 +1,11 @@
-import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../lib/firebaseApp";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useUserContext } from "../lib/contexts";
 
 export default function () {
-    const [user, loading, error] = useAuthState(auth);
+    const { user, loadingUser, errorLoadingUser } = useUserContext();
     const router = useRouter();
 
     function logout() {
@@ -14,27 +14,29 @@ export default function () {
         })
     }
 
-    if (loading) {
+    if (loadingUser) {
         return (
-            <div>
+            <div className="bg-black text-white">
                 <p>Initialising User...</p>
             </div>
         );
     }
-    if (error) {
+    if (errorLoadingUser) {
         return (
-            <div>
+            <div className="bg-black text-white">
                 <p>Error: {error}</p>
             </div>
         );
     }
     if (user) {
         return (
-            <div>
+            <div className="bg-black text-white">
                 Hello {user.email} (<button onClick={logout}>Log out</button>)
             </div>
         );
     }
 
-    return <Link href="/login">Login</Link>;
+    return <div className="bg-black text-white">
+        <Link href="/login">Login</Link>
+    </div>;
 }

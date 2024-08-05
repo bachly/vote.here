@@ -4,9 +4,7 @@ import '../styles/print.css'
 import { UserProvider } from '../lib/contexts'
 
 function MyApp({ Component, pageProps }) {
-  return <UserProvider>
-    <Component {...pageProps} />
-  </UserProvider>
+  return <Component {...pageProps} />
 }
 
 

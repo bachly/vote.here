@@ -73,9 +73,10 @@ export default function Admin() {
                 return
             }
 
-            const updated = {
-                ...pollForms[pollId]
-            }
+            const updated = _.clone({
+                ...pollForms[pollId],
+                answers: _.clone(pollForms[pollId].answers)
+            })
 
             if (fieldName === 'answers') {
                 updated.answers[index] = event.target.value;
@@ -153,11 +154,6 @@ export default function Admin() {
                     </div>
                 </div>
             })}
-            {/* <div>
-                <button className="w-1/2 mx-auto rounded-full text-white bg-blue-500 py-4 text-xl flex items-center justify-center">
-                    New poll <IconPlus className="ml-1" />
-                </button>
-            </div> */}
         </div>
     </div>
 }

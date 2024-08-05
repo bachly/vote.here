@@ -1,4 +1,4 @@
-import WORDS from '../../lib/words.json';
+import WORDS from '../lib/words.json';
 import { useQRCode } from 'next-qrcode';
 
 export default function Users() {

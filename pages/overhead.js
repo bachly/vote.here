@@ -5,10 +5,11 @@ import _ from "underscore";
 
 const INTERVAL_REFRESHING_OVERHEAD = 3000;
 
-export default function ({ currentPollId }) {
+export default function () {
     const [poll, setPoll] = useState()
     const [votedAnswers, setVotedAnswers] = useState()
     const [totalResponses, setTotalReponses] = useState()
+    
 
     useEffect(() => {
         if (poll) {
@@ -27,6 +28,9 @@ export default function ({ currentPollId }) {
     }, [poll])
 
     useEffect(async () => {
+        const overheadData = await getOverhead({ eventId: "1" });
+        const currentPollId = overheadData?.currentPollId;
+
         const pollData = await getPoll({ pollId: currentPollId });
         
         // clear empty answers
@@ -36,6 +40,9 @@ export default function ({ currentPollId }) {
     }, []);
 
     useInterval(async () => {
+        const overheadData = await getOverhead({ eventId: "1" });
+        const currentPollId = overheadData?.currentPollId;
+
         const pollData = await getPoll({ pollId: currentPollId });
         
           // clear empty answers
@@ -86,18 +93,9 @@ export default function ({ currentPollId }) {
 
 
 export async function getServerSideProps(context) {
-    let currentPollId;
-    let eventId = 1;
-
-    if (eventId) {
-        const overheadData = await getOverhead({ eventId });
-        currentPollId = overheadData?.currentPollId;
-    }
-
     return {
         props: {
-            eventId,
-            currentPollId
+            
         }
     }
 }

@@ -29,9 +29,9 @@ export default function () {
 
     useEffect(async () => {
         const overheadData = await getOverhead({ eventId: "1" });
-        const currentPollId = overheadData?.currentPollId;
+        const currentOverheadPollId = overheadData?.currentOverheadPollId;
 
-        const pollData = await getPoll({ pollId: currentPollId });
+        const pollData = await getPoll({ pollId: currentOverheadPollId });
         
         // clear empty answers
         pollData.answers = _.compact(pollData.answers);
@@ -41,9 +41,9 @@ export default function () {
 
     useInterval(async () => {
         const overheadData = await getOverhead({ eventId: "1" });
-        const currentPollId = overheadData?.currentPollId;
+        const currentOverheadPollId = overheadData?.currentOverheadPollId;
 
-        const pollData = await getPoll({ pollId: currentPollId });
+        const pollData = await getPoll({ pollId: currentOverheadPollId });
         
           // clear empty answers
           pollData.answers = _.compact(pollData.answers);

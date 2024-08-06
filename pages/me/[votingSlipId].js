@@ -2,19 +2,63 @@ import { getOverhead, getPoll, setVoterAnswers } from "../../lib/firebaseMethods
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import _ from "underscore";
+import { useInterval } from "../../lib/hooks";
 
-export default function ({ voterId, voterAnswers, poll, currentPollId }) {
+const INTERVAL_REFRESHING_VOTING_SLIP = 3000;
+
+export default function ({ voterId }) {
+    const [poll, setPoll] = useState();
+    const [voterAnswers, setVoterAnswers] = useState();
+    const [currentPollId, setCurrentPollId] = useState();
     const [currentAnswers, setCurrentAnswers] = useState({});
 
-    console.log('poll', poll)
+    useEffect(async () => {
+        await retrievePoll();
+    }, [])
 
     useEffect(() => {
         const preAnswers = {}
-        voterAnswers.map(voterAnswer => {
-            preAnswers[voterAnswer] = true;
-        })
-        setCurrentAnswers(preAnswers);
-    }, [])
+        if (voterAnswers) {
+            voterAnswers.map(voterAnswer => {
+                preAnswers[voterAnswer] = true;
+            })
+            setCurrentAnswers(preAnswers);
+        }
+    }, [voterAnswers])
+
+    async function retrievePoll() {
+        let currentPollId = null, _poll = {}, voterAnswers = [];
+
+        console.log('retrieve poll');
+
+        const overheadResult = await getOverhead({ eventId: "1" });
+        currentPollId = overheadResult.currentPollId;
+
+        if (currentPollId) {
+            _poll = await getPoll({ pollId: currentPollId })
+        }
+
+        if (_poll) {
+            // clear empty elements
+            _poll.answers = _.compact(_poll.answers);
+
+            if (_poll.voterAnswers) {
+                Object.entries(_poll.voterAnswers).map(([answer, voters]) => {
+                    if (_.contains(Object.keys(voters), voterId)) {
+                        voterAnswers.push(answer);
+                    }
+                })
+            }
+        }
+
+        setCurrentPollId(currentPollId);
+        setPoll(_poll);
+        setVoterAnswers(voterAnswers);
+    }
+
+    useInterval(async () => {
+        await retrievePoll();
+    }, INTERVAL_REFRESHING_VOTING_SLIP)
 
     function handleSelectAnswer({ answer }) {
         return event => {
@@ -78,31 +122,10 @@ export default function ({ voterId, voterAnswers, poll, currentPollId }) {
 
 export async function getServerSideProps(context) {
     const voterId = context.params.votingSlipId;
-    let currentPollId = null, poll = null;
-
-    const overheadResult = await getOverhead({ eventId: "1" });
-    currentPollId = overheadResult.currentPollId;
-
-    if (currentPollId) {
-        poll = await getPoll({ pollId: currentPollId })
-    }
-
-    // clear empty elements
-    poll.answers = _.compact(poll.answers);
-
-    const voterAnswers = [];
-    Object.entries(poll.voterAnswers).map(([answer, voters]) => {
-        if (_.contains(Object.keys(voters), voterId)) {
-            voterAnswers.push(answer);
-        }
-    })
 
     return {
         props: {
             voterId,
-            voterAnswers,
-            poll,
-            currentPollId
         }
     }
 }

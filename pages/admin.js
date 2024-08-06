@@ -10,6 +10,7 @@ export default function Admin() {
     const [pollForms, setPollForms] = useState({});
     const [updatedForm, setUpdatedForm] = useState({});
     const [currentPollId, setCurrentPollId] = useState();
+    const [currentOverheadPollId, setCurrentOverheadPollId] = useState();
 
     useEffect(async () => {
         let newPollForms = {};
@@ -24,8 +25,9 @@ export default function Admin() {
                     ...poll,
                     buttonTexts: {
                         save: 'Save',
-                        reset: 'Reset',
-                        live: 'Go Live!'
+                        reset: 'Reset Answers',
+                        audience: 'Send to audience',
+                        overhead: 'Send to overhead'
                     }
                 }
             }
@@ -34,6 +36,7 @@ export default function Admin() {
 
         const overheadData = await getOverhead({ eventId: "1" });
         setCurrentPollId(overheadData?.currentPollId);
+        setCurrentOverheadPollId(overheadData?.currentOverheadPollId);
     }, [])
 
     useEffect(() => {
@@ -45,22 +48,23 @@ export default function Admin() {
             event.preventDefault();
             resetVoterAnswers({ pollId })
 
-            swapButtonText(pollId, 'reset', '✅', 'Reset');
+            swapButtonText(pollId, 'reset', '✅', 'Reset Answers');
         }
     }
 
-    function isCurrentPoll(pollId) {
-        return currentPollId === pollId
-    }
-
-    function goLive(pollId) {
+    function sendToAudience(pollId) {
         return event => {
             event.preventDefault();
-            setCurrentPoll({ pollId })
-
-            swapButtonText(pollId, 'live', '✅', 'Go Live!');
-
+            setCurrentPoll({ currentPollId: pollId })
             setCurrentPollId(pollId);
+        }
+    }
+
+    function sendToOverhead(pollId) {
+        return event => {
+            event.preventDefault();
+            setCurrentPoll({ currentOverheadPollId: pollId })
+            setCurrentOverheadPollId(pollId);
         }
     }
 
@@ -157,7 +161,7 @@ export default function Admin() {
 
         <div className="p-12 grid grid-cols-3 gap-2">
             {pollForms && Object.entries(pollForms).map(([pollId, form]) => {
-                return <div data-poll-id={pollId} key={pollId} className={clsx("bg-white p-8 border-4 rounded-xl max-w-3xl", isCurrentPoll(pollId) ? 'border-red-500 bg-red-100' : 'border-transparent bg-white')}>
+                return <div data-poll-id={pollId} key={pollId} className={clsx("bg-white p-8 border-4 rounded-xl max-w-3xl border-transparent bg-white")}>
                     <div className="flex flex-col h-full">
                         <div className="flex-1">
                             <h3>Text</h3>
@@ -187,14 +191,21 @@ export default function Admin() {
                         </div>
 
                         <div className="mt-8 flex items-center justify-between">
-                            <button onClick={savePoll(pollId)} className="w-24 py-1 px-4 border-2 border-blue-400 text-blue-400 hover:border-blue-600 hover:text-blue-600 transition duration-200 rounded-lg">
-                                {form.buttonTexts.save}
+                            <div className="">
+                                <button onClick={savePoll(pollId)} className="px-4 text-blue-400 hover:text-blue-600 transition duration-200 rounded-lg">
+                                    {form.buttonTexts.save}
+                                </button>
+                                <button onClick={reset(pollId)} className="px-4 text-neutral-400  hover:text-neutral-700 transition duration-200 rounded-lg">
+                                    {form.buttonTexts.reset}
+                                </button>
+                            </div>
+
+                            <button onClick={sendToAudience(pollId)} className={clsx("w-40 h-12 border-2 border-pink-200 text-pink-200 hover:border-pink-600 hover:text-pink-600 transition duration-200 rounded-lg", currentPollId === pollId && "bg-pink-500 border-pink-500 text-pink-100 hover:text-pink-200")}>
+                                {currentPollId === pollId ? <>With Audience</> : <>To Audience</>}
                             </button>
-                            <button onClick={reset(pollId)} className="w-24 py-1 px-4 border-2 border-neutral-400 text-neutral-400 hover:border-neutral-700 hover:text-neutral-700 transition duration-200 rounded-lg">
-                                {form.buttonTexts.reset}
-                            </button>
-                            <button onClick={goLive(pollId)} className="w-24 py-1 px-4 border-2 border-red-400 text-red-400 hover:border-red-600 hover:text-red-600 transition duration-200 rounded-lg">
-                                {form.buttonTexts.live}
+
+                            <button onClick={sendToOverhead(pollId)} className={clsx("w-40 h-12 border-2 border-purple-200 text-purple-200 hover:border-purple-600 hover:text-purple-600 transition duration-200 rounded-lg", currentOverheadPollId === pollId && "bg-purple-500 border-purple-500 text-purple-200 hover:text-purple-100")}>
+                                {currentOverheadPollId === pollId ? <>With Overhead</> : <>To Overhead</>}
                             </button>
                         </div>
                     </div>

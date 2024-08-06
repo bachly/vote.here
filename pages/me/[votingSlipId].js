@@ -26,9 +26,11 @@ export default function ({ voterId }) {
         //     })
         // }
 
-        if (poll && poll.voterAnswers && Object.keys(currentAnswers).length === 0) {
-            Object.keys(poll.voterAnswers).map(voterAnswer => {
-                preAnswers[voterAnswer] = true;
+        if (poll && poll.voterAnswers) {
+            Object.entries(poll.voterAnswers).map(([answer, voters]) => {
+                if (_.contains(Object.keys(voters), voterId)) {
+                    preAnswers[answer] = true;
+                }
             })
             setCurrentAnswers(preAnswers);
         }
@@ -75,7 +77,8 @@ export default function ({ voterId }) {
             }
 
             setCurrentAnswers(answers);
-            
+
+            console.log('voter answers', answers);
             setVoterAnswers({ pollId: currentPollId, voterId, voterAnswers: answers });
         }
     }

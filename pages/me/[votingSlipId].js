@@ -8,7 +8,6 @@ const INTERVAL_REFRESHING_VOTING_SLIP = 3000;
 
 export default function ({ voterId }) {
     const [poll, setPoll] = useState();
-    const [voterAnswers, setVoterAnswers] = useState();
     const [currentPollId, setCurrentPollId] = useState();
     const [currentAnswers, setCurrentAnswers] = useState({});
 
@@ -18,13 +17,22 @@ export default function ({ voterId }) {
 
     useEffect(() => {
         const preAnswers = {}
-        if (voterAnswers) {
-            voterAnswers.map(voterAnswer => {
+
+        // if (poll && poll.voterAnswers) {
+        //     Object.entries(_poll.voterAnswers).map(([answer, voters]) => {
+        //         if (_.contains(Object.keys(voters), voterId)) {
+        //             voterAnswers.push(answer);
+        //         }
+        //     })
+        // }
+
+        if (poll && poll.voterAnswers && Object.keys(currentAnswers).length === 0) {
+            Object.keys(poll.voterAnswers).map(voterAnswer => {
                 preAnswers[voterAnswer] = true;
             })
             setCurrentAnswers(preAnswers);
         }
-    }, [voterAnswers])
+    }, [poll])
 
     async function retrievePoll() {
         let currentPollId = null, _poll = {}, voterAnswers = [];
@@ -41,19 +49,10 @@ export default function ({ voterId }) {
         if (_poll) {
             // clear empty elements
             _poll.answers = _.compact(_poll.answers);
-
-            if (_poll.voterAnswers) {
-                Object.entries(_poll.voterAnswers).map(([answer, voters]) => {
-                    if (_.contains(Object.keys(voters), voterId)) {
-                        voterAnswers.push(answer);
-                    }
-                })
-            }
         }
 
         setCurrentPollId(currentPollId);
         setPoll(_poll);
-        setVoterAnswers(voterAnswers);
     }
 
     useInterval(async () => {
@@ -76,6 +75,7 @@ export default function ({ voterId }) {
             }
 
             setCurrentAnswers(answers);
+            
             setVoterAnswers({ pollId: currentPollId, voterId, voterAnswers: answers });
         }
     }

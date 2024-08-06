@@ -18,14 +18,6 @@ export default function ({ voterId }) {
     useEffect(() => {
         const preAnswers = {}
 
-        // if (poll && poll.voterAnswers) {
-        //     Object.entries(_poll.voterAnswers).map(([answer, voters]) => {
-        //         if (_.contains(Object.keys(voters), voterId)) {
-        //             voterAnswers.push(answer);
-        //         }
-        //     })
-        // }
-
         if (poll && poll.voterAnswers) {
             Object.entries(poll.voterAnswers).map(([answer, voters]) => {
                 if (_.contains(Object.keys(voters), voterId)) {

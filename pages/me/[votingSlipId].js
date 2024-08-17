@@ -1,37 +1,33 @@
 import { getOverhead, getPoll, setVoterAnswers } from "../../lib/firebaseMethods";
 import React, { useEffect, useState } from "react";
-import clsx from "clsx";
 import _ from "underscore";
-import { useInterval } from "../../lib/hooks";
-
-const INTERVAL_REFRESHING_VOTING_SLIP = 3000;
+import { Checkbox } from "primereact/checkbox";
 
 export default function ({ voterId }) {
     const [poll, setPoll] = useState();
     const [currentPollId, setCurrentPollId] = useState();
     const [currentAnswers, setCurrentAnswers] = useState({});
+    const [preAnswers, setPreAnswers] = useState({});
 
     useEffect(async () => {
         await retrievePoll();
     }, [])
 
     useEffect(() => {
-        const preAnswers = {}
+        const _preAnswers = {}
 
         if (poll && poll.voterAnswers) {
             Object.entries(poll.voterAnswers).map(([answer, voters]) => {
                 if (_.contains(Object.keys(voters), voterId)) {
-                    preAnswers[answer] = true;
+                    _preAnswers[answer] = true;
                 }
             })
-            setCurrentAnswers(preAnswers);
+            setPreAnswers(_preAnswers);
         }
     }, [poll])
 
     async function retrievePoll() {
         let currentPollId = null, _poll = {}, voterAnswers = [];
-
-        console.log('retrieve poll');
 
         const overheadResult = await getOverhead({ eventId: "1" });
         currentPollId = overheadResult.currentPollId;
@@ -40,18 +36,11 @@ export default function ({ voterId }) {
             _poll = await getPoll({ pollId: currentPollId })
         }
 
-        if (_poll) {
-            // clear empty elements
-            _poll.answers = _.compact(_poll.answers);
-        }
+        console.log('retrieve poll', _poll);
 
         setCurrentPollId(currentPollId);
         setPoll(_poll);
     }
-
-    useInterval(async () => {
-        await retrievePoll();
-    }, INTERVAL_REFRESHING_VOTING_SLIP)
 
     function handleSelectAnswer({ answer }) {
         return event => {
@@ -69,9 +58,14 @@ export default function ({ voterId }) {
             }
 
             setCurrentAnswers(answers);
+        }
+    }
 
-            console.log('voter answers', answers);
-            setVoterAnswers({ pollId: currentPollId, voterId, voterAnswers: answers });
+    function handleSubmit() {
+        return async event => {
+            event.preventDefault();
+            await setVoterAnswers({ pollId: currentPollId, voterId, voterAnswers: currentAnswers });
+            location.reload();
         }
     }
 
@@ -80,39 +74,65 @@ export default function ({ voterId }) {
         return selectedAnswers.length >= poll.maxchoices && !currentAnswers[answer]
     }
 
+    function canSubmit() {
+        const selectedAnswers = Object.entries(currentAnswers).filter(([answer, status]) => !!status);
+        return selectedAnswers.length > 0
+    }
+
     return <div className="min-h-screen bg-black flex flex-col">
-        {poll && poll.answers && poll.answers.length === 0 &&
+        {poll && poll.answers && Object.keys(poll.answers).length === 0 &&
             <div className="min-h-screen min-w-screen flex items-center justify-center">
                 <div className="text-white text-2xl">
                     {poll.question}
                 </div>
             </div>}
 
-        {poll && poll.answers && poll.answers.length > 0 && <div className="flex-1">
-            <header className="py-3 bg-neutral-900 text-white text-center text-2xl">
-                {poll.question}
-            </header>
+        {poll && poll.answers && Object.keys(poll.answers).length > 0 &&
+            <div className="flex-1">
+                <div className="max-w-xl mx-auto">
+                    <header className="mt-4 py-3 bg-neutral-900 text-white text-center text-2xl">
+                        {poll.question}
+                    </header>
 
-            <div className="p-4 grid grid-cols-1 lg:grid-cols-1 gap-2">
-                {poll.answers.map((answer, index) => {
-                    if (!answer) {
-                        return <></>;
-                    }
+                    {Object.keys(preAnswers).length > 0 ?
+                        <div className="text-white text-center py-12">
+                            Thank you for voting.
+                        </div>
+                        :
+                        <>
+                            <div className="p-4 grid grid-cols-1 lg:grid-cols-1 gap-2">
+                                {Object.entries(poll.answers).map(([index, answer]) => {
+                                    if (answer) {
+                                        return <div key={answer} className="text-white">
+                                            <Checkbox
+                                                disabled={isDisabled({ answer })}
+                                                inputId={`radio_${index}`} value={answer} checked={currentAnswers[answer] === true} name="voter_answer" onChange={handleSelectAnswer({ answer })} />
+                                            <label htmlFor={`radio_${index}`} className="ml-2 disabled:opacity-10" disabled={isDisabled({ answer })}>{answer}</label>
+                                        </div>
+                                    }
 
-                    return <button
-                        key={`${answer}_${index}`}
-                        onClick={handleSelectAnswer({ answer })}
-                        disabled={isDisabled({ answer })}
-                        className={clsx(
-                            currentAnswers && currentAnswers[answer] ? "text-white bg-blue-600 border-transparent" : "text-neutral-400 border-neutral-400",
-                            "mt-1 block w-full py-4 px-3 border-2 rounded-xl text-2xl disabled:opacity-30")}>
-                        <span className="ml-2" >{answer}</span>
-                    </button>
-                })}
+                                    // return <label key={answer}>
+                                    //     <input
+                                    //         type="radio"
+                                    //         name="voter_answer"
+                                    //         checked={currentAnswers[answer] === true}
+                                    //         onChange={handleSelectAnswer({ answer })}
+                                    //     >
+                                    //     </input>
+                                    //     <span className="ml-2 text-white text-2xl">{answer}</span>
+                                    // </label>
+                                })}
+                            </div>
+
+                            <button
+                                disabled={!canSubmit()}
+                                onClick={handleSubmit()}
+                                className="text-white bg-cyan-600 border-transparent mt-1 block w-full py-4 px-3 border-2 rounded-xl text-2xl disabled:opacity-30">Submit</button>
+                        </>}
+                </div>
             </div>
-        </div>}
-    </div >
-
+        }
+    </div>
 }
 
 export async function getServerSideProps(context) {

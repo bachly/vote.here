@@ -1,10 +1,12 @@
 import '../styles/globals.css'
 import '../styles/custom.css'
 import '../styles/print.css'
-import { UserProvider } from '../lib/contexts'
+import { PrimeReactProvider } from 'primereact/api';
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return <PrimeReactProvider>
+    <Component {...pageProps} />
+  </PrimeReactProvider>
 }
 
 

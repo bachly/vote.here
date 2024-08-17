@@ -3,12 +3,12 @@ import { getOverhead, getPoll, getPollsByUser, resetVoterAnswers, setCurrentPoll
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import _ from 'underscore';
+import { InputSwitch } from 'primereact/inputswitch';
 
 export default function Admin() {
 
     const [polls, setPolls] = useState();
     const [pollForms, setPollForms] = useState({});
-    const [updatedForm, setUpdatedForm] = useState({});
     const [currentPollId, setCurrentPollId] = useState();
     const [currentOverheadPollId, setCurrentOverheadPollId] = useState();
 
@@ -25,7 +25,7 @@ export default function Admin() {
                     ...poll,
                     buttonTexts: {
                         save: 'Save',
-                        reset: 'Reset Answers',
+                        reset: 'Reset Results',
                         audience: 'Send to audience',
                         overhead: 'Send to overhead'
                     }
@@ -48,7 +48,7 @@ export default function Admin() {
             event.preventDefault();
             resetVoterAnswers({ pollId })
 
-            swapButtonText(pollId, 'reset', '✅', 'Reset Answers');
+            swapButtonText(pollId, 'reset', '✅', 'Reset Results');
         }
     }
 
@@ -73,11 +73,13 @@ export default function Admin() {
             event.preventDefault();
             const data = {
                 pollId,
-                question: updatedForm.question || pollForms[pollId].question,
-                answers: updatedForm.answers || pollForms[pollId].answers,
-                maxchoices: updatedForm.maxchoices || pollForms[pollId].maxchoices || 1
+                question: pollForms[pollId].question,
+                answers: pollForms[pollId].answers,
+                maxchoices: pollForms[pollId].maxchoices || 1
             }
             setPoll(data);
+
+            console.log('Save poll:', data);
 
             swapButtonText(pollId, 'save', '✅', 'Save');
         }
@@ -109,31 +111,37 @@ export default function Admin() {
         }, 500)
     }
 
-    function updateForm({ pollId, fieldName, index }) {
+    function updateForm({ pollId, fieldName, key }) {
         return event => {
             event.preventDefault();
-
-            console.log('updateForm', fieldName, event.target.value);
 
             if (!pollId || !fieldName) {
                 return
             }
 
-            const updated = _.clone({
-                ...pollForms[pollId],
-                answers: _.clone(pollForms[pollId].answers)
-            })
+            console.log('Update field:', fieldName, event.target.value);
+
+            const newPollForm = {}
 
             if (fieldName === 'answers') {
-                updated.answers[index] = event.target.value;
+                newPollForm.answers = newPollForm.answers || {}
+                newPollForm.answers[key] = event.target.value;
             } else {
-                updated[fieldName] = event.target.value;
+                newPollForm[fieldName] = event.target.value;
             }
 
-            console.log('updated', updated);
+            console.log('Updated', newPollForm);
 
-            setUpdatedForm({
-                ...updated
+            setPollForms({
+                ...pollForms,
+                [pollId]: {
+                    ...pollForms[pollId],
+                    ...newPollForm,
+                    answers: {
+                        ...pollForms[pollId].answers,
+                        ...newPollForm.answers
+                    },
+                }
             })
         }
     }
@@ -161,7 +169,7 @@ export default function Admin() {
 
         <div className="p-12 grid grid-cols-3 gap-2">
             {pollForms && Object.entries(pollForms).map(([pollId, form]) => {
-                return <div data-poll-id={pollId} key={pollId} className={clsx("bg-white p-8 border-4 rounded-xl max-w-3xl border-transparent bg-white")}>
+                return <div data-poll-id={pollId} key={pollId} className={clsx("bg-white p-8 border-4 rounded-xl max-w-3xl border-transparent")}>
                     <div className="flex flex-col h-full">
                         <div className="flex-1">
                             <h3>Text</h3>
@@ -171,12 +179,12 @@ export default function Admin() {
 
                             <h3 className="mt-4">Answers</h3>
 
-                            {form.answers && form.answers.map((answer, index) => {
-                                return <div key={`${form.question}_${answer}_${index}`} className="mt-1">
+                            {form.answers && Object.entries(form.answers).map(([key, answer]) => {
+                                return <div key={`${form.question}_${key}`} className="mt-1">
                                     <input
-                                        onChange={updateForm({ pollId, fieldName: 'answers', index })}
+                                        onChange={updateForm({ pollId, fieldName: 'answers', key })}
                                         className="w-full border border-neutral-400 rounded-lg p-2"
-                                        type="text" defaultValue={answer}></input>
+                                        type="text" value={answer}></input>
                                 </div>
                             })}
 
@@ -191,22 +199,24 @@ export default function Admin() {
                         </div>
 
                         <div className="mt-8 flex items-center justify-between">
+                            <label className="flex items-center">
+                                <InputSwitch checked={currentPollId === pollId} onChange={sendToAudience(pollId)} />
+                                <div className="ml-2">To audience</div>
+                            </label>
+
+                            <label className="flex items-center">
+                                <InputSwitch checked={currentOverheadPollId === pollId} onChange={sendToOverhead(pollId)} />
+                                <div className="ml-2">To overhead</div>
+                            </label>
+
                             <div className="">
-                                <button onClick={savePoll(pollId)} className="px-4 text-blue-400 hover:text-blue-600 transition duration-200 rounded-lg">
-                                    {form.buttonTexts.save}
-                                </button>
-                                <button onClick={reset(pollId)} className="px-4 text-neutral-400  hover:text-neutral-700 transition duration-200 rounded-lg">
+                                <button onClick={reset(pollId)} className="w-32 text-neutral-400  hover:text-neutral-700 transition duration-200 rounded-lg">
                                     {form.buttonTexts.reset}
                                 </button>
+                                <button onClick={savePoll(pollId)} className="w-20 text-blue-400 hover:text-blue-600 transition duration-200 rounded-lg">
+                                    {form.buttonTexts.save}
+                                </button>
                             </div>
-
-                            <button onClick={sendToAudience(pollId)} className={clsx("w-40 h-12 border-2 border-pink-200 text-pink-200 hover:border-pink-600 hover:text-pink-600 transition duration-200 rounded-lg", currentPollId === pollId && "bg-pink-500 border-pink-500 text-pink-100 hover:text-pink-200")}>
-                                {currentPollId === pollId ? <>With Audience</> : <>To Audience</>}
-                            </button>
-
-                            <button onClick={sendToOverhead(pollId)} className={clsx("w-40 h-12 border-2 border-purple-200 text-purple-200 hover:border-purple-600 hover:text-purple-600 transition duration-200 rounded-lg", currentOverheadPollId === pollId && "bg-purple-500 border-purple-500 text-purple-200 hover:text-purple-100")}>
-                                {currentOverheadPollId === pollId ? <>With Overhead</> : <>To Overhead</>}
-                            </button>
                         </div>
                     </div>
                 </div>

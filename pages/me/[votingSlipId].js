@@ -58,7 +58,7 @@ export default function ({
         {poll && poll.answers && Object.keys(poll.answers).length > 0 &&
             <div className="flex-1">
                 <div className="max-w-xl mx-auto">
-                    <header className="mt-4 py-3 bg-neutral-900 text-white text-center text-2xl">
+                    <header className="px-6 py-3 bg-neutral-900 text-white text-center text-xl">
                         {poll.question}
                     </header>
 
@@ -68,10 +68,10 @@ export default function ({
                         </div>
                         :
                         <div>
-                            <div className="p-4 grid grid-cols-1 lg:grid-cols-1 gap-2">
+                            <div className="p-6 grid grid-cols-1 lg:grid-cols-1 gap-2">
                                 {Object.entries(poll.answers).map(([index, answer]) => {
                                     if (answer) {
-                                        return <div key={answer} className="text-white py-2 text-left">
+                                        return <div key={answer} className="text-white py-1 text-left">
                                             <RadioButton
                                                 inputId={`radio_${index}`} value={answer} checked={currentAnswers[answer] === true} name="voter_answer" onChange={handleSelectAnswer({ answer })} />
                                             <label htmlFor={`radio_${index}`} className="ml-2 disabled:opacity-10" disabled={isDisabled({ answer })}>{answer}</label>
@@ -80,10 +80,12 @@ export default function ({
                                 })}
                             </div>
 
-                            <button
-                                disabled={!canSubmit()}
-                                onClick={handleSubmit()}
-                                className="text-white bg-cyan-600 border-transparent mt-1 block w-full py-4 px-3 border-2 rounded-xl text-2xl disabled:opacity-30">Submit</button>
+                            <div className="px-4">
+                                <button
+                                    disabled={!canSubmit()}
+                                    onClick={handleSubmit()}
+                                    className="text-white bg-cyan-600 block w-full max-w-xs mx-auto py-2 px-3 rounded-lg text-xl disabled:opacity-30">Submit</button>
+                            </div>
                         </div>}
                 </div>
             </div>

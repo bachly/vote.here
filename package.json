@@ -44,6 +44,7 @@
     "underscore": "^1.13.6"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "autoprefixer": "^10.4.2",
     "cypress": "^12.15.0",
     "cypress-downloadfile": "^1.2.3",

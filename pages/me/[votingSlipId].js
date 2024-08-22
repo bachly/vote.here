@@ -1,62 +1,30 @@
 import { getOverhead, getPoll, setVoterAnswers } from "../../lib/firebaseMethods";
 import React, { useEffect, useState } from "react";
 import _ from "underscore";
-import { Checkbox } from "primereact/checkbox";
+import { RadioButton } from "primereact/radiobutton";
+import WORDS from "../../lib/words.json";
 
-export default function ({ voterId }) {
-    const [poll, setPoll] = useState();
-    const [currentPollId, setCurrentPollId] = useState();
+export default function ({
+    voterId,
+    poll,
+    currentPollId,
+    hasAlreadyVoted }) {
     const [currentAnswers, setCurrentAnswers] = useState({});
-    const [preAnswers, setPreAnswers] = useState({});
 
-    useEffect(async () => {
-        await retrievePoll();
-    }, [])
-
-    useEffect(() => {
-        const _preAnswers = {}
-
-        if (poll && poll.voterAnswers) {
-            Object.entries(poll.voterAnswers).map(([answer, voters]) => {
-                if (_.contains(Object.keys(voters), voterId)) {
-                    _preAnswers[answer] = true;
-                }
-            })
-            setPreAnswers(_preAnswers);
-        }
-    }, [poll])
-
-    async function retrievePoll() {
-        let currentPollId = null, _poll = {}, voterAnswers = [];
-
-        const overheadResult = await getOverhead({ eventId: "1" });
-        currentPollId = overheadResult.currentPollId;
-
-        if (currentPollId) {
-            _poll = await getPoll({ pollId: currentPollId })
-        }
-
-        console.log('retrieve poll', _poll);
-
-        setCurrentPollId(currentPollId);
-        setPoll(_poll);
+    if (!_.contains(WORDS, voterId)) {
+        return <div className="min-h-screen bg-black text-white flex items-center justify-center text-center px-4">Hey, don't cheat! This is an Invalid Voting Slip.</div>;
     }
 
     function handleSelectAnswer({ answer }) {
         return event => {
             event && event.preventDefault();
 
+            console.log('Select answer', answer);
+
             let answers = Object.assign({}, currentAnswers);
-            const selectedAnswers = Object.entries(currentAnswers).filter(([answer, status]) => !!status);
 
-            if (answers[answer]) {
-                answers[answer] = false;
-            } else {
-                if (selectedAnswers.length < poll.maxchoices) {
-                    answers[answer] = true;
-                }
-            }
-
+            Object.entries(answers).map(([key]) => answers[key] = false);
+            answers[answer] = true;
             setCurrentAnswers(answers);
         }
     }
@@ -94,33 +62,21 @@ export default function ({ voterId }) {
                         {poll.question}
                     </header>
 
-                    {Object.keys(preAnswers).length > 0 ?
+                    {hasAlreadyVoted ?
                         <div className="text-white text-center py-12">
                             Thank you for voting.
                         </div>
                         :
-                        <>
+                        <div>
                             <div className="p-4 grid grid-cols-1 lg:grid-cols-1 gap-2">
                                 {Object.entries(poll.answers).map(([index, answer]) => {
                                     if (answer) {
-                                        return <div key={answer} className="text-white">
-                                            <Checkbox
-                                                disabled={isDisabled({ answer })}
+                                        return <div key={answer} className="text-white py-2 text-left">
+                                            <RadioButton
                                                 inputId={`radio_${index}`} value={answer} checked={currentAnswers[answer] === true} name="voter_answer" onChange={handleSelectAnswer({ answer })} />
                                             <label htmlFor={`radio_${index}`} className="ml-2 disabled:opacity-10" disabled={isDisabled({ answer })}>{answer}</label>
                                         </div>
                                     }
-
-                                    // return <label key={answer}>
-                                    //     <input
-                                    //         type="radio"
-                                    //         name="voter_answer"
-                                    //         checked={currentAnswers[answer] === true}
-                                    //         onChange={handleSelectAnswer({ answer })}
-                                    //     >
-                                    //     </input>
-                                    //     <span className="ml-2 text-white text-2xl">{answer}</span>
-                                    // </label>
                                 })}
                             </div>
 
@@ -128,7 +84,7 @@ export default function ({ voterId }) {
                                 disabled={!canSubmit()}
                                 onClick={handleSubmit()}
                                 className="text-white bg-cyan-600 border-transparent mt-1 block w-full py-4 px-3 border-2 rounded-xl text-2xl disabled:opacity-30">Submit</button>
-                        </>}
+                        </div>}
                 </div>
             </div>
         }
@@ -137,10 +93,30 @@ export default function ({ voterId }) {
 
 export async function getServerSideProps(context) {
     const voterId = context.params.votingSlipId;
+    let currentPollId = null, poll = {};
+    let hasAlreadyVoted = false;
+
+    const overheadResult = await getOverhead({ eventId: "1" });
+    currentPollId = overheadResult.currentPollId;
+
+    if (currentPollId) {
+        poll = await getPoll({ pollId: currentPollId })
+    }
+
+    if (poll && poll.voterAnswers) {
+        Object.entries(poll.voterAnswers).map(([answer, voters]) => {
+            if (_.contains(Object.keys(voters), voterId)) {
+                hasAlreadyVoted = true;
+            }
+        })
+    }
 
     return {
         props: {
             voterId,
+            poll,
+            currentPollId,
+            hasAlreadyVoted
         }
     }
 }
